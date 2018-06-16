@@ -1,0 +1,422 @@
+<html>
+<head>
+    <title>calculator</title>
+    <style type="text/css">
+
+	fieldset{
+		border:4px solid #4374D9;
+		border-radius:15px;
+		box-shadow: 5px 5px 5px #B2CCFF;
+		width: 190px;
+		margin-left:120px;
+	}
+	.layer{
+		width: 70%;
+		margin-left:137px;
+	}
+	section {
+		border:4px solid #4374D9;
+		border-radius:15px;
+		box-shadow: 5px 5px 5px #B2CCFF;
+		float:right;
+		height:360px;
+		padding: 20px;
+		margin:10px;
+	}
+
+	#plotSettings {
+		width:380px;
+		height:90px;
+	}
+
+	#plot {
+		width:380px;
+		height:330px;
+	}
+	input[type=number], button {
+		width:53px;
+		padding:5px; 
+		border:2px solid #ccc; 
+		-webkit-border-radius: 5px;
+		border-radius: 5px;
+	}
+	input[type=color] {
+		width:50px; 
+		border:2px solid #ccc; 
+		-webkit-border-radius: 5px;
+		border-radius: 5px;
+	}
+	input[type=text] {
+		width:319px;
+		padding:5px; 
+		border:2px solid #ccc; 
+		-webkit-border-radius: 5px;
+		border-radius: 5px;
+	}
+
+	input[type=number]:focus {
+		border-color:#333;
+	}	
+		h1{
+			font-size:40px;
+			font-family:sans-serif;
+			color:black;
+			text-align:center;
+		}
+		h2{
+			font-size:12px;
+			font-family:sans-serif;
+			color:black;
+		}
+        #calculator {
+			border: #003399;
+			border-style: solid;
+			border-width: 5px;
+			box-shadow: 5px 5px 5px grey;
+            font-size: 0;
+            width: 432px;
+			height: 700px;
+            background-color: #F6F6F6;
+            padding: 10px;
+            margin: auto;
+            border-radius: 10px;           
+        }
+		
+		#history{
+			width: 413px;
+			height: 70px;
+			margin-bottom: 15px;
+			padding: 5px;
+			background-color: #89FF82;
+			border-radius: 5px;
+			text-align: right;
+			display: inline-flex;
+			border: #050099;
+			border-style: solid;
+			border-width: 1px;
+            font: 20px digital;
+			overflow: auto;
+			justify-content: flex-end;
+					
+		}
+       
+        #result {
+            width: 350px;
+            height: 35px;
+			margin-top: 15px;
+            margin-bottom: 15px;
+            padding: 5px;
+            background-color: #2FED28;
+            border-radius: 5px;
+            display: inline-flex;
+            justify-content: flex-end;
+            align-items: center;
+            overflow: auto;
+            border: #050099;
+			border-style: solid;
+			border-width: 1px;
+            font: 20px digital;
+        }
+
+        .key {
+            background-color: #FFFFFF;
+            display: inline-flex;
+            vertical-align: middle;
+            justify-content: center;
+            align-items: center;
+			border: #191919;
+			border-style: solid;
+			border-width: 2px;
+			border-color: #191919;
+            border-radius: 10px;
+            cursor: pointer;
+            font: bold 20px sans-serif;
+        }
+		
+		.key-op{
+			width: 40px;
+            height: 25px;
+			margin: 3px 10px 15px 0px;
+			padding: 10px 0px 5px 0px;
+		}
+		
+		.etc-key{
+			background-color: #FFD9FA;
+		}
+		
+		.operator-key{
+			background-color: #C4FDFF;
+		
+		}
+
+        .symbol-key {
+			background-color: #FFFFA1;
+            font: italic 20px "Times New Roman"
+        }
+
+        .function-key {
+			background-color: #FFFFA1;
+            font: italic 15px "Times New Roman"
+        }
+
+        .eval-key {
+            background-color: #1DDB16;
+            color: white;
+        }
+		.clear-key{
+			width: 45px;
+			height: 45px;
+			margin-left: 8px;
+			margin-bottom: 10px;
+			background-color: #FF0000;
+            color: white;
+		}
+       
+        .clearEntry-key {
+            background-color: #FF0000;
+            color: white;
+        }
+       
+        .key:active {
+            background-color: #a1a1a1;
+            box-shadow: 0 1px #666;
+            transform: translateY(2px);
+        }
+    </style>
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+	<script src="https://mauriciopoppe.github.io/function-plot/js/function-plot.js"></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js' type='text/javascript'></script>
+    <script src='math.js' type='text/javascript'></script>
+	
+	<script type="text/javascript">
+		function radio(r){
+			if(r==0){
+				init();
+				$('#history').show();
+				$('.key').show();
+				$('#result').show();
+			}else{
+				[].forEach.call(document.querySelectorAll('.layer'), function (el) {
+				el.style.visibility = '';
+				});
+				$('#history').hide();
+				$('.key').hide();
+				$('#result').hide();
+			}
+		}
+	</script>
+	
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var parser = math.parser();
+
+            var displayValue = '0';
+			var pre_displayValue = [30];
+			var i=0;
+            $('#result').text(displayValue);
+ 
+            $('.key').each(function(index, key){       
+                $(this).click(function(e){
+                    if(displayValue == '0') displayValue = '';
+
+                    if($(this).text() == 'EV')
+                    {
+                        try
+                        {
+							var history = displayValue;							
+                            displayValue = parser.eval(displayValue).toString();
+                            var tokens = displayValue.split(' ');
+                            if(tokens[0] == 'function')
+                            {
+                                displayValue = tokens[0];
+                            }
+                            $('#result').text(displayValue); 
+							$('#history').prepend(history +" ["+displayValue+"]"+"</br>");
+                            displayValue = '0';
+							$('#myFunc').val('');
+                        }
+                        catch (e)
+                        {
+                            displayValue = '0';
+                            if(displayValue != 'function')
+                            {
+                                $('#result').text(e);
+                            }
+                        }               
+                    }
+                    else
+                    {
+						
+                        if($(this).text() == 'CL')
+                        {
+                            displayValue = '0';
+                            $('#result').text(displayValue);
+							$('#myFunc').val('');
+                        }
+						else if($(this).text() == 'CE'){
+							displayValue = pre_displayValue[--i];							
+							$('#result').text(displayValue);
+							$('#myFunc').val(displayValue);
+						}
+                        else
+                        {   
+							pre_displayValue[i++] = displayValue;
+                            displayValue += $(this).text();
+                            $('#result').text(displayValue);
+							$('#myFunc').val($('#myFunc').val() + $(this).text());
+                        }
+                    }
+
+                    e.preventDefault()
+                })
+            })
+        })
+    </script>
+	
+	<script type="text/javascript">
+	var j = 0;
+	var parameters = {
+		width: 410,
+		height: 350,
+		target: '#myFunction',
+		data: [{fn: '', color: 'black'}, {fn: '', color: 'red'}, {fn: '', color: 'green'}, {fn: '', color: 'blue'}],
+		grid: true,
+		yAxis: {domain: [-6, 6]},
+		xAxis: {domain: [-6, 6]},
+	};
+
+	function plot2() {
+		
+		var f = document.querySelector("#myFunc").value;
+		var minX = document.querySelector("#minX").value;
+		var minY = document.querySelector("#minY").value;
+		var maxX = document.querySelector("#maxX").value;
+		var maxY = document.querySelector("#maxY").value;
+		var color = document.querySelector("#color").value;
+		
+		parameters.xAxis.domain = [minX, maxX];
+		parameters.yAxis.domain = [minY, maxY];
+		
+		functionPlot(parameters);
+	}
+	function plot() {
+		
+		var f = document.querySelector("#myFunc").value;
+		var minX = document.querySelector("#minX").value;
+		var minY = document.querySelector("#minY").value;
+		var maxX = document.querySelector("#maxX").value;
+		var maxY = document.querySelector("#maxY").value;
+		var color = document.querySelector("#color").value;
+		
+		parameters.xAxis.domain = [minX, maxX];
+		parameters.yAxis.domain = [minY, maxY];
+		if(j==3){
+			parameters.data[3].fn = f;
+			j=0;
+		}
+		else if(j==2){
+			parameters.data[2].fn = f;
+			j++;
+		}
+		else if(j==1){
+			parameters.data[1].fn = f;
+			j++;
+		}
+		else if(j==0){
+			parameters.data[0].fn = f;
+			j++;
+		}		
+		functionPlot(parameters);
+	}
+	function init(){
+		[].forEach.call(document.querySelectorAll('.layer'), function (el) {
+			el.style.visibility = 'hidden';
+		});
+	}
+	</script>
+</head>
+ 
+<body onload="init();"> 
+    <div id="calculator">
+		<h1>MY CALCULATOR</h1>
+		<fieldset>
+			<form class="form" onchange="radio(grp.value)">
+				<h2><input type="radio" name="grp" value="0" checked="on"/>Calc Mode
+				<input type="radio" name="grp" value="1"/>Graph Mode</h2>
+			</form>
+		</fieldset>
+		
+		<div></div>
+        <div id="result"></div>
+		<span class="key clear-key">CL</span>
+		<div id="history"></div>
+        <span class="key key-op operator-key">^</span>
+        <span class="key key-op operator-key"><</span>
+		<span class="key key-op operator-key">></span>
+		<span class="key key-op operator-key">!</span>
+		<span class="key key-op operator-key">=</span>
+		<span class="key key-op function-key">exp</span>
+        <span class="key key-op function-key">log</span>
+        <span class="key key-op function-key">sqrt</span>
+		<span class="key key-op operator-key">+</span>
+		<span class="key key-op operator-key">-</span>
+		<span class="key key-op operator-key">*</span>
+        <span class="key key-op operator-key">/</span>
+		<span class="key key-op operator-key">%</span>
+		<span class="key key-op function-key">sin</span>
+        <span class="key key-op function-key">cos</span>
+        <span class="key key-op function-key">tan</span>
+		<span class="key key-op ">9</span>
+		<span class="key key-op ">8</span>
+		<span class="key key-op ">7</span>
+		<span class="key key-op etc-key">(</span>
+		<span class="key key-op etc-key">)</span>
+		<span class="key key-op symbol-key">i</span>
+        <span class="key key-op symbol-key">e</span>
+        <span class="key key-op symbol-key">pi</span>
+		<span class="key key-op ">6</span>
+		<span class="key key-op ">5</span>
+		<span class="key key-op ">4</span>
+		<span class="key key-op etc-key">[</span>
+		<span class="key key-op etc-key">]</span>
+		<span class="key key-op symbol-key">w</span>
+		<span class="key key-op function-key">cross</span>
+        <span class="key key-op function-key">det</span>
+		<span class="key key-op ">3</span>
+		<span class="key key-op ">2</span>
+		<span class="key key-op ">1</span>
+		<span class="key key-op etc-key">:</span>
+		<span class="key key-op etc-key">;</span>
+		<span class="key key-op symbol-key">x</span>
+        <span class="key key-op symbol-key">y</span>
+        <span class="key key-op symbol-key">z</span>
+		<span class="key key-op ">0</span>
+		<span class="key key-op ">.</span>
+		<span class="key key-op ">,</span>
+		<span class="key key-op clearEntry-key">CE</span>
+        <span class="key key-op eval-key">EV</span>
+		<span class="key key-op symbol-key">f</span>
+        <span class="key key-op symbol-key">g</span>
+		<span class="key key-op symbol-key">h</span>
+		
+		<div class="layer">
+			<section id="plotSettings">
+			<h2>
+			<label for="minX">minX </label> <input type=number id="minX" value=-6 step=1 oninput="plot2();">&nbsp;
+			<label for="minY">minY </label> <input type=number id="minY" value=-6 step=1 oninput="plot2();">&nbsp;
+			<label for="maxX">maxX </label> <input type=number id="maxX" value=6 step=1 oninput="plot2();">&nbsp;
+			<label for="maxY">maxY </label> <input type=number id="maxY" value=6 step=1 oninput="plot2();"><p></p>
+			<input hidden type=color id="color" onchange="plot2();">
+			<input id="myFunc" type="text" onchange="plot2();">
+			<button onclick="plot();">PLOT</button>
+
+			</section>
+
+			<section id="plot">
+				<div id="myFunction"></div>
+			</section>
+		</div>
+    </div>
+</body>
+</html>
